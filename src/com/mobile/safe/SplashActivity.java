@@ -1,5 +1,6 @@
 package com.mobile.safe;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -9,22 +10,35 @@ import java.net.URL;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.ViewUtils;
+import com.lidroid.xutils.exception.HttpException;
+import com.lidroid.xutils.http.HttpHandler;
+import com.lidroid.xutils.http.ResponseInfo;
+import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.util.LogUtils;
 import com.lidroid.xutils.view.annotation.ViewInject;
 import com.mobile.safe.activity.HomeActivity;
 import com.mobile.safe.utils.StreamTools;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,12 +54,17 @@ public class SplashActivity extends Activity {
 
 	@ViewInject(R.id.tv_splash_version)
 	private TextView tv_splash_version; 
+	@ViewInject(R.id.tv_update_info)
+	private TextView tv_update_info;
 	
 	protected static final int SHOW_UPDATE_DIALOG = 0;
 	protected static final int ENTER_HOME = 1;
 	protected static final int URL_ERROR = 2;
 	protected static final int NETWORK_ERROR = 3;
 	protected static final int JSON_ERROR = 4;
+	
+	private String description;
+	private String apkurl;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +87,7 @@ public class SplashActivity extends Activity {
 			switch (msg.what) {
 			case SHOW_UPDATE_DIALOG:// 显示升级的对话框
 				LogUtils.i("显示升级的对话框");
-//				showUpdateDialog();
+				showUpdateDialog();
 				break;
 			case ENTER_HOME:// 进入主页面
 				enterHome();
@@ -106,8 +125,7 @@ public class SplashActivity extends Activity {
 	private void checkUpdate() {
 
 		new Thread(){
-			private String description;
-			private String apkurl;
+		
 
 			public void run() {
 				Message mes = Message.obtain();
@@ -175,6 +193,99 @@ public class SplashActivity extends Activity {
 				
 			};			 
 		}.start();
+		
+	}
+
+
+	/**
+	 * 弹出升级对话框
+	 * 实验的时候，要注意 如果要安装的版本比手机已安装版本低的话，安装不上。要先卸掉手机上的应用
+	 */
+	protected void showUpdateDialog() {
+		AlertDialog.Builder builder = new Builder(SplashActivity.this);
+		builder.setTitle("提示升级");
+//		builder.setCancelable(false);//强制升级
+		builder.setMessage(description);
+		builder.setPositiveButton("立刻升级", new OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// 下载APK，并且替换安装
+				if (Environment.getExternalStorageState().equals(
+						Environment.MEDIA_MOUNTED)) {
+					// sdcard存在
+					// afnal
+					HttpUtils   http=new HttpUtils();
+					http.download(apkurl, Environment
+							.getExternalStorageDirectory().getAbsolutePath()+"/mobilesafe2.0.apk", 
+							new RequestCallBack<File>() {
+								
+								@Override
+								public void onSuccess(ResponseInfo<File> responseInfo) {
+									installAPK(responseInfo.result);
+								}
+								
+								@Override
+								public void onFailure(HttpException arg0, String arg1) {
+									arg0.printStackTrace();
+									Toast.makeText(getApplicationContext(), "下载失败", 1).show();
+								}
+								
+								/**
+								 * 安装APK, 查看源码 PackageInstaller
+								 * @param t
+								 */
+								private void installAPK(File file) {
+									Intent intent = new Intent();
+									  intent.setAction("android.intent.action.VIEW");
+									  intent.addCategory("android.intent.category.DEFAULT");
+									  intent.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive");									  
+									  startActivity(intent);									
+								}
+								
+								@Override
+								public void onLoading(long total, long current,
+										boolean isUploading) {
+									super.onLoading(total, current, isUploading);
+									tv_update_info.setVisibility(View.VISIBLE);
+									//当前下载百分比
+									int progress = (int) (current * 100 / total);
+									tv_update_info.setText("下载进度："+progress+"%");
+									
+								}
+							});
+					
+					
+					
+				
+				}else{
+					Toast.makeText(getApplicationContext(), "没有sdcard，请安装上在试",0).show();
+					return;
+				}
+				
+			}
+		
+		});
+		builder.setOnCancelListener(new OnCancelListener() {
+			
+			@Override
+			public void onCancel(DialogInterface dialog) {
+				//进入主页面
+				enterHome();
+				dialog.dismiss();
+				
+			}
+		});
+		builder.setNegativeButton("下次再说", new OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+				enterHome();// 进入主页面
+			}
+		});
+		builder.show();
+		
 		
 	}
 
