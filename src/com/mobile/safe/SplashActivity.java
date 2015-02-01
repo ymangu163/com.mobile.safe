@@ -194,7 +194,7 @@ public class SplashActivity extends Activity {
 			};			 
 		}.start();
 		
-	}
+	} 
 
 
 	/**
@@ -266,6 +266,7 @@ public class SplashActivity extends Activity {
 			}
 		
 		});
+		// 点击返回
 		builder.setOnCancelListener(new OnCancelListener() {
 			
 			@Override
@@ -299,7 +300,14 @@ public class SplashActivity extends Activity {
 	}
 
 
-
+	/*
+	 *  给应用签名的步骤：
+	 *  ① 选中项目，右键 Export ...
+		② 导出应用：Export Android Application.
+		③ 创建keystore,注意所有的密码都是同一个
+		④ 填写城市名等信息，国家填86
+		⑤ 最后选择应用的保存地址和名称，就成功鸟，这个应用就可以去发布了
+	 */
 	/**
 	 * 得到应用程序的版本名称
 	 */

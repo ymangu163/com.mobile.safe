@@ -17,9 +17,16 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+        <!-- Theme.Black.NoTitleBar  是为了兼容低版本,丑
+         		优化：把<activity>中的Theme.Black.NoTitleBar的 <item>拷贝到AppTheme中；
+         		 再把<activity>中的Theme删除.
+         		 这样就即兼容又美化了。
+         -->
+        
         <activity
             android:name=".SplashActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name" 
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
