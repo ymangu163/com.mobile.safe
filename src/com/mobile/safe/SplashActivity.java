@@ -195,7 +195,15 @@ public class SplashActivity extends Activity {
 		}.start();
 		
 	} 
-
+	/*
+	 *   this 与 getApplicationContext() 两种上下文的区别？
+		① getApplicationContext();生命周期长，只要应用还存活它就存在；
+		this 生命周期短，只要 Activity 不存在了，系统就会回收；
+		② getBaseContext(),getApplication(),getApplicationContext();
+		都不能放在 AlertDialog 做上下文；
+		③ getApplicationContext（） 使用场景是比如频繁需要操作的数据库
+		推荐用法:Activity.this
+	 */
 
 	/**
 	 * 弹出升级对话框
