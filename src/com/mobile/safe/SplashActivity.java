@@ -28,6 +28,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -65,6 +66,7 @@ public class SplashActivity extends Activity {
 	
 	private String description;
 	private String apkurl;
+	private SharedPreferences sp;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -72,10 +74,26 @@ public class SplashActivity extends Activity {
 		setContentView(R.layout.activity_splash);
 		
 		ViewUtils.inject(this);
-		tv_splash_version.setText("版本号" + getVersionName());
+		sp = getSharedPreferences("config", MODE_PRIVATE);
 		
-		// 检查升级
-		checkUpdate();
+		tv_splash_version.setText("版本号" + getVersionName());
+		boolean update = sp.getBoolean("update", false);
+		if(update){
+			// 检查升级
+			checkUpdate();
+		}else{
+			//自动升级已经关闭
+			handler.postDelayed(new Runnable() {
+				
+				@Override
+				public void run() {
+					//进入主页面
+					enterHome();
+					
+				}
+			}, 2000);
+		
+		}
 		AlphaAnimation aa = new AlphaAnimation(0.2f, 1.0f);
 		aa.setDuration(1000);
 		findViewById(R.id.rl_root_splash).startAnimation(aa);  // 给RelativeLayout 设置动画
@@ -117,6 +135,7 @@ public class SplashActivity extends Activity {
 			
 		};
 	};
+	
 	
 	
 	/**
