@@ -13,7 +13,19 @@
         android:text="功能列表"
         android:textColor="#000000"
         android:textSize="22sp" />
-
+    <!--  start,middle,end  在哪个地方省略;
+       marquee  跑马灯 ; 要获得焦点才会跑起来
+    -->
+    <com.mobile.safe.ui.FocusedTextView
+        android:focusableInTouchMode="true" 
+        android:singleLine="true"
+        android:ellipsize="marquee"
+        android:textSize="18sp"
+        android:text="最新的手机卫士，快来下载啊，下载送好吃的，最新的手机卫士，快来下载啊，下载送好吃的"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"            
+        android:textColor="#ff0055"   
+        />
 
     <GridView
         android:id="@+id/list_home"
