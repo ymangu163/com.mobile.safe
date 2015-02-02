@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ymangu="http://schemas.android.com/apk/res/com.mobile.safe"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
@@ -15,9 +16,12 @@
         android:textSize="22sp" />
  
     <com.mobile.safe.ui.SettingItemView
-         android:id="@+id/siv_update"
+        android:id="@+id/siv_update"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        ymangu:mtitle="设置自动更新."
+        ymangu:desc_on="设置自动更新已经开启"
+        ymangu:desc_off="设置自动更新已经关闭"
         />
 
    
