@@ -24,7 +24,8 @@
         android:text="最新的手机卫士，快来下载啊，下载送好吃的，最新的手机卫士，快来下载啊，下载送好吃的"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"            
-        android:textColor="#ff0055"   
+        android:textColor="#f40055"   
+        android:marqueeRepeatLimit="marquee_forever"
         />
 
     <GridView

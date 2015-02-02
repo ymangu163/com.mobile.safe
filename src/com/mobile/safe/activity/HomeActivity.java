@@ -12,9 +12,12 @@ import com.mobile.safe.adapter.ViewHolder;
 import com.mobile.safe.bean.HomeItemBean;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 
@@ -56,6 +59,23 @@ public class HomeActivity extends Activity {
 			}
 		});
 		
+		gridView.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				switch (position) {
+				case 8://进入设置中心
+					Intent intent = new Intent(HomeActivity.this,SettingActivity.class);
+					startActivity(intent);
+					
+					break;
+
+				default:
+					break;
+				}
+			}
+		});
 		
 	}
 
@@ -66,9 +86,7 @@ public class HomeActivity extends Activity {
 			homeBean=new HomeItemBean(names[i], ids[i]);
 			mDatas.add(homeBean);		
 			LogUtils.d("names"+names[i]+"  ,ids"+ids[i]);
-		}
-		
-		
+		}		
 	}
 	
 	
