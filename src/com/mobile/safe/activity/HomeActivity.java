@@ -10,6 +10,7 @@ import com.mobile.safe.R;
 import com.mobile.safe.adapter.CommonAdapter;
 import com.mobile.safe.adapter.ViewHolder;
 import com.mobile.safe.bean.HomeItemBean;
+import com.mobile.safe.utils.MD5Utils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -149,7 +150,7 @@ public class HomeActivity extends Activity {
 				if(password.equals(password_confirm)){
 					//一致的话，就保存密码，把对话框消掉，还要进入手机防盗页面
 					Editor editor = sp.edit();
-					editor.putString("password", password);//保存加密后的
+					editor.putString("password", MD5Utils.md5Password(password));//保存加密后的
 					editor.commit();
 					dialog.dismiss();
 				}else{
@@ -198,7 +199,7 @@ public class HomeActivity extends Activity {
 					return;
 				}
 				
-				if(password.equals(savePassword)){
+				if(MD5Utils.md5Password(password).equals(savePassword)){
 					//输入的密码是我之前设置的密码
 					//把对话框消掉，进入主页面；
 					dialog.dismiss();
