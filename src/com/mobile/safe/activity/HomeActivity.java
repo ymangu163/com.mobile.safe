@@ -153,6 +153,11 @@ public class HomeActivity extends Activity {
 					editor.putString("password", MD5Utils.md5Password(password));//保存加密后的
 					editor.commit();
 					dialog.dismiss();
+					
+					LogUtils.i("一致的话，就保存密码，把对话框消掉，还要进入手机防盗页面");
+					Intent intent = new Intent(HomeActivity.this,LostFindActivity.class);
+					startActivity(intent);
+					
 				}else{
 					Toast.makeText(HomeActivity.this, "密码不一致", 0).show();
 					return ;					
@@ -204,8 +209,8 @@ public class HomeActivity extends Activity {
 					//把对话框消掉，进入主页面；
 					dialog.dismiss();
 					Log.i("TAG", "把对话框消掉，进入手机防盗页面");
-//					Intent intent = new Intent(HomeActivity.this,LostFindActivity.class);
-//					startActivity(intent);
+					Intent intent = new Intent(HomeActivity.this,LostFindActivity.class);
+					startActivity(intent);
 					
 				}else{
 					Toast.makeText(HomeActivity.this, "密码错误", 1).show();
