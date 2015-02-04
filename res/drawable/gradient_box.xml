@@ -3,15 +3,15 @@
     android:shape="rectangle" >
 
     <corners android:radius="5dip" />
-    <!--
-    渐变 
-    <gradient android:startColor="#ff0000"  android:endColor="#00ffff"/>
+    <!--    渐变 
+        <gradient android:startColor="#ff0000" 
+          android:endColor="#00ffff"/>
     -->
 
 
     <!-- 固定色 -->
     <solid android:color="#ffffff" />
-
+   <!--  边框  -->
    <!--  <stroke
         android:dashWidth="3dip"
         android:width="2dip"
