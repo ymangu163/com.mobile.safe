@@ -29,7 +29,7 @@ public class SettingItemView extends RelativeLayout {
 		desc_off = attrs.getAttributeValue("http://schemas.android.com/apk/res/com.mobile.safe", "desc_off");
 		
 		tv_title.setText(title);
-		
+		setDesc(desc_off);
 		
 	}
 
