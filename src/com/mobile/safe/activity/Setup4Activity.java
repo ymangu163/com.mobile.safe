@@ -9,7 +9,7 @@ import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.view.View;
 
-public class Setup4Activity extends Activity {
+public class Setup4Activity extends BaseSetupActivity {
 	
 	private SharedPreferences sp;
 
@@ -19,8 +19,9 @@ public class Setup4Activity extends Activity {
 		setContentView(R.layout.activity_setup4);		
 		sp = getSharedPreferences("config", MODE_PRIVATE);
 	}
-	
-	public void next(View view){
+
+	@Override
+	public void showNext() {
 		Editor editor = sp.edit();
 		editor.putBoolean("configed", true);
 		editor.commit();
@@ -30,13 +31,13 @@ public class Setup4Activity extends Activity {
 		finish();
 		overridePendingTransition(R.anim.trans_in, R.anim.trans_out);
 	}
-	
-	public void pre(View view){
+
+	@Override
+	public void showPre() {
 		Intent intent = new Intent(this,Setup3Activity.class);
 		startActivity(intent);
 		finish();	
 		overridePendingTransition(R.anim.trans_pre_in, R.anim.trans_pre_out);
-		
 	}
 	
 
