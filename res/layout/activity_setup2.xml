@@ -25,6 +25,7 @@
     
     
     <com.mobile.safe.ui.SettingItemView
+        android:id="@+id/siv_setup2_sim"
         itheima:mtitle="点击绑定sim卡"
         itheima:desc_on="sim卡已绑定"
         itheima:desc_off="sim卡没有绑定"
