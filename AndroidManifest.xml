@@ -9,7 +9,8 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.READ_CONTACTS"/>     
-    
+    <uses-permission android:name="android.permission.SEND_SMS"/>
+    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
     
         
     <uses-sdk
@@ -53,6 +54,14 @@
             </intent-filter>
         </receiver>
         
+         <!--  设置短信优先级 ，范围 -1000~1000，值越大越优先-->
+          <receiver android:name="com.mobile.safe.receiver.SMSReceiver">
+            <intent-filter android:priority="1000" >
+                <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
+            </intent-filter>
+        </receiver>
+         
+         
     </application>
 
 </manifest>
