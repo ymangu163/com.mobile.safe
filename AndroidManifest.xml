@@ -8,7 +8,9 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-        
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>     
+    
+    
         
     <uses-sdk
         android:minSdkVersion="10"
@@ -42,6 +44,7 @@
         <activity  android:name=".activity.Setup2Activity"/>
         <activity  android:name=".activity.Setup3Activity"/>
         <activity  android:name=".activity.Setup4Activity"/>
+        <activity  android:name=".activity.SelectContactActivity"/>
         
          <!--监听开机启动完成的广播  -->
          <receiver android:name="com.mobile.safe.receiver.BootCompleteReceiver" >

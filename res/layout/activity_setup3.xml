@@ -23,13 +23,16 @@
         android:hint="请输入电话号码"
         android:inputType="phone"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:id="@+id/et_setup3_phone"
+         />
 
     <Button
         android:background="@drawable/button_bg"
         android:text="选择联系人"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:onClick="selectContact"
        />
 
     <LinearLayout
