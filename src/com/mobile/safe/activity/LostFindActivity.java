@@ -44,10 +44,7 @@ public class LostFindActivity extends Activity {
 			}else{
 				//没有开启防盗保护
 				iv_protecting.setImageResource(R.drawable.unlock);
-			}
-			
-			
-			
+			}			
 		}else{
 			//还没有做过设置向导
 			Intent intent = new Intent(this,Setup1Activity.class);
@@ -55,8 +52,6 @@ public class LostFindActivity extends Activity {
 			//关闭当前页面
 			finish();
 		}
-		
-		
 		
 	}
 	
@@ -70,6 +65,5 @@ public class LostFindActivity extends Activity {
 		//关闭当前页面
 		finish();
 	}
-	
 
 }
