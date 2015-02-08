@@ -2,7 +2,9 @@ package com.mobile.safe.activity;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -26,6 +28,35 @@ public class NumberAddressQueryActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_number_addres_query);
 		ViewUtils.inject(this);
+		
+		ed_phone.addTextChangedListener(new TextWatcher() {
+			//文本发生变化之前回调
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+				
+			}
+			//当文本发生变化的时候回调
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
+				if(s!= null&&s.length()>=3){
+					//查询数据库，并且显示结果
+					String address = NumberAddressQueryUtils.queryNumber(s.toString());
+					result.setText(address);
+				}
+			}
+			//当文本发生变化之后回调
+			@Override
+			public void afterTextChanged(Editable s) {
+				
+			}
+			
+			
+			
+		});
+		
+		
 	}
 	
 	/**
