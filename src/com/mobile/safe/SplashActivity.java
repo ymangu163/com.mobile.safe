@@ -1,6 +1,7 @@
 package com.mobile.safe;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -78,6 +79,10 @@ public class SplashActivity extends Activity {
 		
 		tv_splash_version.setText("版本号" + getVersionName());
 		boolean update = sp.getBoolean("update", false);
+		
+		//拷贝数据库
+	   copyDB();
+		
 		if(update){
 			// 检查升级
 			checkUpdate();
@@ -100,6 +105,35 @@ public class SplashActivity extends Activity {
 		
 	}
 	
+	/**
+	 * //path 把address.db这个数据库拷贝到data/data/《包名》/files/address.db
+	 */
+	private void copyDB() {
+		//只要你拷贝了一次，我就不要你再拷贝了
+		
+		File file = new File(getFilesDir(), "address.db");
+		try {
+			if(file.exists()&&file.length()>0){
+				//正常了，就不需要拷贝了
+				LogUtils.i("正常了，就不需要拷贝了");
+			}else{
+				InputStream is = getAssets().open("address.db");
+				FileOutputStream fos = new FileOutputStream(file);
+				byte[] buffer = new byte[1024];
+				int len = 0;
+				while((len = is.read(buffer))!= -1){
+					fos.write(buffer, 0, len);
+				}
+				is.close();
+				fos.close();				
+			}
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
+
 	private Handler handler = new Handler() {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {

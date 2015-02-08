@@ -60,8 +60,8 @@ public class LostFindActivity extends Activity {
 	 * @param view
 	 */
 	public void reEnterSetup(View view){
-//		Intent intent = new Intent(this,Setup1Activity.class);
-		Intent intent = new Intent(this,OneKeyLockActivity.class);
+		Intent intent = new Intent(this,Setup1Activity.class);
+//		Intent intent = new Intent(this,OneKeyLockActivity.class);
 		startActivity(intent);
 		//关闭当前页面
 		finish();

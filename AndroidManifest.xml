@@ -51,6 +51,8 @@
         <activity  android:name=".activity.Setup4Activity"/>
         <activity  android:name=".activity.SelectContactActivity"/>
         <activity  android:name=".activity.OneKeyLockActivity"/>
+        <activity  android:name=".activity.AtoolsActivity"/>
+        <activity  android:name=".activity.NumberAddressQueryActivity"/>
         
         
         <service android:name="com.mobile.safe.service.GPSService"/>
