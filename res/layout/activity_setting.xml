@@ -24,5 +24,15 @@
         ymangu:desc_off="设置自动更新已经关闭"
         />
 
+        <com.mobile.safe.ui.SettingItemView
+        android:id="@+id/siv_show_address"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        ymangu:mtitle="设置显示号码归属地"
+        ymangu:desc_on="设置显示号码归属地已经开启"
+        ymangu:desc_off="设置显示号码归属地已经关闭"
+        />
+    
+    
    
 </LinearLayout>
