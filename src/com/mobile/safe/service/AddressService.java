@@ -130,7 +130,7 @@ public class AddressService extends Service {
 			case TelephonyManager.CALL_STATE_IDLE:   //电话的空闲状态：挂电话、来电拒绝
 				//把这个View移除
 				if(view != null ){
-					wm.removeView(view);
+					wm.removeView(view);   // 让自定义Toast消失
 				}
 				break;	
 			

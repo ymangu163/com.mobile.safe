@@ -33,6 +33,10 @@
         ymangu:desc_off="设置显示号码归属地已经关闭"
         />
     
-    
+     <com.mobile.safe.ui.SettingClickView
+        android:id="@+id/scv_changebg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+    </com.mobile.safe.ui.SettingClickView>
    
 </LinearLayout>

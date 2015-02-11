@@ -94,16 +94,18 @@ public class HomeActivity extends Activity {
 					break;
 					
 				case 7://进入高级工具
-					intent = new Intent(HomeActivity.this,AtoolsActivity.class);					
+					intent = new Intent(HomeActivity.this,AtoolsActivity.class);	
+					startActivity(intent);		
 					break;
 				case 8://进入设置中心
-					intent = new Intent(HomeActivity.this,SettingActivity.class);					
+					intent = new Intent(HomeActivity.this,SettingActivity.class);		
+					startActivity(intent);		
 					break;
 
 				default:
 					break;
 				}
-				startActivity(intent);				
+						
 			}
 		});
 		
