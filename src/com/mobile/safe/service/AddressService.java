@@ -10,12 +10,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.graphics.PixelFormat;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -35,7 +39,7 @@ public class AddressService extends Service {
 	private MyListenerPhone listenerPhone;	
 	private OutCallReceiver2 receiver;
 	private WindowManager.LayoutParams params;
-	
+	private SharedPreferences sp2;
 	
 	@Override
 	public void onCreate() {
@@ -102,6 +106,7 @@ public class AddressService extends Service {
 		}
 	}
 	
+	long[] mHits = new long[2];
 
 	/**
 	 * 自定义土司
@@ -115,8 +120,8 @@ public class AddressService extends Service {
 	    int [] ids = {R.drawable.call_locate_white,R.drawable.call_locate_orange,R.drawable.call_locate_blue
 	    ,R.drawable.call_locate_gray,R.drawable.call_locate_green};
 	    
-	    SharedPreferences sp = getSharedPreferences("config", MODE_PRIVATE);
-	    view.setBackgroundResource(ids[sp.getInt("which", 0)]);
+	    sp2 = getSharedPreferences("config", MODE_PRIVATE);
+	    view.setBackgroundResource(ids[sp2.getInt("which", 0)]);
 	    textview.setText(address);
 	
 	    // 给view对象设置一个触摸的监听器
@@ -124,6 +129,7 @@ public class AddressService extends Service {
 			// 定义手指的初始化位置
 			int startX;
 			int startY;
+			
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				switch (event.getAction()) {
@@ -140,35 +146,73 @@ public class AddressService extends Service {
 					LogUtils.i("手指在控件上移动");
 					params.x += dx;
 					params.y += dy;
-				
 					
+					// 考虑边界问题
+					if (params.x < 0) {
+						params.x = 0;
+					}
+					if (params.y < 0) {
+						params.y = 0;
+					}
+					if (params.x > (wm.getDefaultDisplay().getWidth() - view.getWidth())) {
+						params.x = (wm.getDefaultDisplay().getWidth() - view.getWidth());
+					}
+					if (params.y > (wm.getDefaultDisplay().getHeight() - view.getHeight())) {
+						params.y = (wm.getDefaultDisplay().getHeight() - view.getHeight());
+					}
 					
 					wm.updateViewLayout(view, params);    //更新view的位置
 					// 重新初始化手指的开始结束位置。
 					startX = (int) event.getRawX();
 					startY = (int) event.getRawY();
 					break;
-					
+				case MotionEvent.ACTION_UP:// 手指离开屏幕一瞬间
+					// 记录控件距离屏幕左上角的坐标
+					LogUtils.i("手指离开控件");
+					Editor editor = sp2.edit();
+					editor.putInt("lastx", params.x);
+					editor.putInt("lasty", params.y);
+					editor.commit();
+					break;	
 				
 				}
 				
 				
-				return true;// 事件处理完毕了。不要让父控件 父布局响应触摸事件了。
+//				return true;// 事件到此就处理完毕了。不要让父控件 父布局响应触摸事件了。
+				return false;    //事件还未处理完毕
 			}
 		});
 	    
 	    
-	    
-	    
-	    
-	    
+	    view.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				//src 拷贝的源数组
+				//srcPos 从源数组的那个位置开始拷贝.
+				//dst 目标数组
+				//dstPos 从目标数组的那个位子开始写数据
+				//length 拷贝的元素的个数
+				System.arraycopy(mHits, 1, mHits, 0, mHits.length - 1);
+				mHits[mHits.length - 1] = SystemClock.uptimeMillis();
+				if (mHits[0] >= (SystemClock.uptimeMillis() - 500)) {
+					// 双击居中了。。。
+					params.x = wm.getDefaultDisplay().getWidth()/2-view.getWidth()/2;
+					wm.updateViewLayout(view, params);
+					Editor editor = sp2.edit();
+					editor.putInt("lastx", params.x);
+					editor.commit();
+				}	
+			}    	
+	    });        
 	    
 		params = new WindowManager.LayoutParams();
 		 
          params.height = WindowManager.LayoutParams.WRAP_CONTENT;
          params.width = WindowManager.LayoutParams.WRAP_CONTENT;
-         
-         
+        // 与窗体左上角对其
+ 		params.gravity = Gravity.TOP + Gravity.LEFT;
+         params.x = sp2.getInt("lastx", 0);
+ 		params.y = sp2.getInt("lasty", 0);         
          
          // 去掉不可触摸项
          params.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
