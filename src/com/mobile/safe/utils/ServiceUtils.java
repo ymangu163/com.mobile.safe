@@ -2,6 +2,8 @@ package com.mobile.safe.utils;
 
 import java.util.List;
 
+import com.lidroid.xutils.util.LogUtils;
+
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.content.Context;

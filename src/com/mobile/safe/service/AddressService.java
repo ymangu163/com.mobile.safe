@@ -1,5 +1,6 @@
 package com.mobile.safe.service;
 
+import com.lidroid.xutils.util.LogUtils;
 import com.mobile.safe.R;
 import com.mobile.safe.db.dao.NumberAddressQueryUtils;
 
@@ -13,7 +14,9 @@ import android.graphics.PixelFormat;
 import android.os.IBinder;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.WindowManager;
 import android.widget.TextView;
 
@@ -30,7 +33,8 @@ public class AddressService extends Service {
 	 */
 	private TelephonyManager tm;
 	private MyListenerPhone listenerPhone;	
-	private OutCallReceiver receiver;
+	private OutCallReceiver2 receiver;
+	private WindowManager.LayoutParams params;
 	
 	
 	@Override
@@ -42,10 +46,14 @@ public class AddressService extends Service {
 		tm.listen(listenerPhone, PhoneStateListener.LISTEN_CALL_STATE);
 		
 		// 用代码去注册广播接收者
-		receiver = new OutCallReceiver();
+		receiver = new OutCallReceiver2();
+		
 		IntentFilter filter = new IntentFilter();
 		filter.addAction("android.intent.action.NEW_OUTGOING_CALL");
+		filter.addAction("android.intent.action.PHONE_STATE");
+		filter.addCategory("android.intent.category.DEFAULT");
 		registerReceiver(receiver, filter);
+		LogUtils.d("生成了服务对象，注册了广播");
 		
 		//实例化窗体
 	    wm = (WindowManager) getSystemService(WINDOW_SERVICE);
@@ -73,15 +81,24 @@ public class AddressService extends Service {
 	/*
 	 * .广播接收者的生命周期和服务一样
 	 */
-	class OutCallReceiver extends BroadcastReceiver {
-
+	class OutCallReceiver2 extends BroadcastReceiver {
+		public OutCallReceiver2() {
+			LogUtils.d("生成广播对象");
+		}
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			// 这就是我们拿到的播出去的电话号码
 			String phone = getResultData();
-			// 查询数据库
-			String address = NumberAddressQueryUtils.queryNumber(phone);
-			myToast(address);			
+			LogUtils.d("phone:"+phone);
+			if(phone!=null){
+				// 查询数据库
+				String address = NumberAddressQueryUtils.queryNumber(phone);
+				myToast(address);			
+				
+			}else{				
+				myToast("重庆网易");			
+				
+			}
 		}
 	}
 	
@@ -101,17 +118,65 @@ public class AddressService extends Service {
 	    SharedPreferences sp = getSharedPreferences("config", MODE_PRIVATE);
 	    view.setBackgroundResource(ids[sp.getInt("which", 0)]);
 	    textview.setText(address);
-		//窗体的参数就设置好了
-		 WindowManager.LayoutParams params = new WindowManager.LayoutParams();
+	
+	    // 给view对象设置一个触摸的监听器
+	    view.setOnTouchListener(new OnTouchListener() {		
+			// 定义手指的初始化位置
+			int startX;
+			int startY;
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				switch (event.getAction()) {
+				case MotionEvent.ACTION_DOWN:// 手指按下屏幕
+					startX = (int) event.getRawX();
+					startY = (int) event.getRawY();
+					LogUtils.i( "手指摸到控件");
+					break;
+				case MotionEvent.ACTION_MOVE:// 手指在屏幕上移动
+					int newX = (int) event.getRawX();
+					int newY = (int) event.getRawY();
+					int dx = newX - startX;
+					int dy = newY - startY;
+					LogUtils.i("手指在控件上移动");
+					params.x += dx;
+					params.y += dy;
+				
+					
+					
+					wm.updateViewLayout(view, params);    //更新view的位置
+					// 重新初始化手指的开始结束位置。
+					startX = (int) event.getRawX();
+					startY = (int) event.getRawY();
+					break;
+					
+				
+				}
+				
+				
+				return true;// 事件处理完毕了。不要让父控件 父布局响应触摸事件了。
+			}
+		});
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+		params = new WindowManager.LayoutParams();
 		 
          params.height = WindowManager.LayoutParams.WRAP_CONTENT;
          params.width = WindowManager.LayoutParams.WRAP_CONTENT;
          
+         
+         
+         // 去掉不可触摸项
          params.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                 | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
                  | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON;
          params.format = PixelFormat.TRANSLUCENT;
-         params.type = WindowManager.LayoutParams.TYPE_TOAST;
+         
+      // android系统里面具有电话优先级的一种窗体类型，记得添加权限。
+ 		params.type = WindowManager.LayoutParams.TYPE_PRIORITY_PHONE;
 		wm.addView(view, params);
 		
 	}

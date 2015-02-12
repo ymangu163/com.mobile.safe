@@ -1,5 +1,6 @@
 package com.mobile.safe.activity;
 
+import com.lidroid.xutils.util.LogUtils;
 import com.mobile.safe.R;
 import com.mobile.safe.service.AddressService;
 import com.mobile.safe.ui.SettingClickView;
@@ -103,7 +104,7 @@ public class SettingActivity extends Activity {
 		});
 		
 		
-		// 设置号码归属地显示空间
+		// 设置号码归属地显示控件
 		siv_show_address = (SettingItemView) findViewById(R.id.siv_show_address);
 		showAddress = new Intent(this, AddressService.class);
 		boolean isServiceRunning = ServiceUtils.isServiceRunning(
@@ -126,8 +127,9 @@ public class SettingActivity extends Activity {
 
 				} else {
 					// 选择状态
-					siv_show_address.setChecked(true);
-					startService(showAddress);
+					siv_show_address.setChecked(true);					
+					startService(showAddress); // 去开启服务
+					LogUtils.d("开启了服务");					
 
 				}
 
@@ -143,7 +145,9 @@ public class SettingActivity extends Activity {
 		showAddress = new Intent(this, AddressService.class);
 		boolean isServiceRunning = ServiceUtils.isServiceRunning(
 				SettingActivity.this,
-				"com.itheima.mobilesafe.service.AddressService");
+				"com.mobile.safe.service.AddressService");
+		LogUtils.d("isServiceRunning:"+isServiceRunning);
+		
 		
 		if(isServiceRunning){
 			//监听来电的服务是开启的
