@@ -3,6 +3,7 @@ package com.mobile.safe.activity;
 import com.lidroid.xutils.util.LogUtils;
 import com.mobile.safe.R;
 import com.mobile.safe.service.AddressService;
+import com.mobile.safe.service.CallSmsSafeService;
 import com.mobile.safe.ui.SettingClickView;
 import com.mobile.safe.ui.SettingItemView;
 import com.mobile.safe.utils.ServiceUtils;
@@ -30,7 +31,10 @@ public class SettingActivity extends Activity {
 	
 	//设置归属地显示框背景
 		private SettingClickView scv_changebg;
-	
+		
+		//黑名单拦截设置
+		private SettingItemView siv_callsms_safe;
+		private Intent callSmsSafeIntent;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +108,28 @@ public class SettingActivity extends Activity {
 		});
 		
 		
+		//黑名单拦截设置
+				siv_callsms_safe = (SettingItemView) findViewById(R.id.siv_callsms_safe);
+				callSmsSafeIntent = new Intent(this, CallSmsSafeService.class);
+				siv_callsms_safe.setOnClickListener(new OnClickListener() {
+
+							@Override
+							public void onClick(View v) {
+								if (siv_callsms_safe.isChecked()) {
+									// 变为非选中状态
+									siv_callsms_safe.setChecked(false);
+									stopService(callSmsSafeIntent);
+								} else {
+									// 选择状态
+									siv_callsms_safe.setChecked(true);
+									startService(callSmsSafeIntent);
+								}
+
+							}
+						});
+		
+		
+		
 		// 设置号码归属地显示控件
 		siv_show_address = (SettingItemView) findViewById(R.id.siv_show_address);
 		showAddress = new Intent(this, AddressService.class);
@@ -155,6 +181,11 @@ public class SettingActivity extends Activity {
 		}else{
 			siv_show_address.setChecked(false);
 		}
+		// 电话拦截
+		boolean iscallSmsServiceRunning = ServiceUtils.isServiceRunning(
+				SettingActivity.this,
+				"com.mobile.safe.service.CallSmsSafeService");
+		siv_callsms_safe.setChecked(iscallSmsServiceRunning);
 		
 	}
 	
