@@ -1,18 +1,25 @@
 package com.mobile.safe.activity;
 
 import java.util.List;
-import java.util.Random;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.mobile.safe.R;
 import com.mobile.safe.adapter.CommonAdapter;
 import com.mobile.safe.adapter.ViewHolder;
 import com.mobile.safe.bean.BlackNumberInfo;
-import com.mobile.safe.bean.HomeItemBean;
 import com.mobile.safe.db.dao.BlackNumberDao;
 
 public class CallSmsSafeActivity extends Activity {
@@ -29,9 +36,8 @@ public class CallSmsSafeActivity extends Activity {
 		infos = dao.findAll();
 		lv_callsms_safe.setAdapter( mAdapter=new CommonAdapter<BlackNumberInfo>(CallSmsSafeActivity.this,
 				infos,R.layout.list_item_callsms) {
-
 					@Override
-					public void convert(ViewHolder holder, BlackNumberInfo item) {
+					public void convert(ViewHolder holder, final BlackNumberInfo item) {
 						switch(item.getMode()){
 						case "1":
 							 holder.setText(R.id.tv_block_mode, "电话拦截");
@@ -43,8 +49,30 @@ public class CallSmsSafeActivity extends Activity {
 							holder.setText(R.id.tv_block_mode, "全部拦截");
 							break;						
 						}	
-						 holder.setText(R.id.tv_black_number, item.getNumber());
 						
+						 holder.setText(R.id.tv_black_number, item.getNumber());
+						 holder.getView(R.id.iv_delete).setOnClickListener(new OnClickListener() {
+							@Override
+							public void onClick(View v) {
+								AlertDialog.Builder builder = new Builder(CallSmsSafeActivity.this);
+								builder.setTitle("警告");
+								builder.setMessage("确定要删除这条记录么？");
+								builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+										//删除数据库的内容
+										dao.delete(item.getNumber());
+										//更新界面。
+										infos.remove(item);
+										//通知listview数据适配器更新
+										mAdapter.notifyDataSetChanged();
+									}
+								});
+								builder.setNegativeButton("取消", null);
+								builder.show();					
+								
+							}							 
+						 });
 						
 					}
 			
@@ -53,15 +81,65 @@ public class CallSmsSafeActivity extends Activity {
 		
 	}
 	
+	private EditText et_blacknumber;
+	private CheckBox cb_phone;
+	private CheckBox cb_sms;
+	private Button bt_ok;
+	private Button bt_cancel;
 	
 	public void addBlackNumber(View view){
-		long basenumber = 13500000000l;
-		Random random = new Random();
-		for (int i = 0; i < 100; i++) {
-			dao.add(String.valueOf(basenumber+i), String.valueOf(random.nextInt(3)+1));
-		}
+		AlertDialog.Builder builder = new Builder(this);
+		final AlertDialog dialog = builder.create();
+		View contentView = View.inflate(this, R.layout.dialog_add_blacknumber, null);
+		et_blacknumber = (EditText) contentView.findViewById(R.id.et_blacknumber);
+		cb_phone = (CheckBox) contentView.findViewById(R.id.cb_phone);
+		cb_sms = (CheckBox) contentView.findViewById(R.id.cb_sms);
+		bt_cancel = (Button) contentView.findViewById(R.id.cancel);
+		bt_ok = (Button) contentView.findViewById(R.id.ok);
+		dialog.setView(contentView, 0, 0, 0, 0);
+		dialog.show();
 		
-		mAdapter.notifyDataSetChanged();
+		bt_cancel.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				dialog.dismiss();
+			}
+		});
+		
+		bt_ok.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				String blacknumber = et_blacknumber.getText().toString().trim();
+				if(TextUtils.isEmpty(blacknumber)){
+					Toast.makeText(getApplicationContext(), "黑名单号码不能为空", 0).show();
+					return;
+				}
+				String mode ;
+				if(cb_phone.isChecked()&&cb_sms.isChecked()){
+					//全部拦截
+					mode = "3";
+				}else if(cb_phone.isChecked()){
+					//电话拦截
+					mode = "1";
+				}else if(cb_sms.isChecked()){
+					//短信拦截
+					mode = "2";
+				}else{
+					Toast.makeText(getApplicationContext(), "请选择拦截模式", 0).show();
+					return;
+				}
+				//数据被加到数据库
+				dao.add(blacknumber, mode);
+				//更新listview集合里面的内容。
+				BlackNumberInfo info = new BlackNumberInfo();
+				info.setMode(mode);
+				info.setNumber(blacknumber);
+				infos.add(0, info);
+				//通知listview数据适配器数据更新了。
+				mAdapter.notifyDataSetChanged();
+				dialog.dismiss();				
+			}			
+		});		
 	}
 	
 	

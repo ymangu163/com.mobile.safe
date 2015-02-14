@@ -40,7 +40,8 @@ public abstract class CommonAdapter<T> extends BaseAdapter
 	{
 		return position;
 	}
-
+	
+	//有多少个条目被显示，这个方法就会被调用多少次
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent)
 	{

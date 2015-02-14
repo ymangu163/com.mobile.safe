@@ -26,23 +26,17 @@ public class ViewHolder
 		this.mViews = new SparseArray<View>();
 		mConvertView = LayoutInflater.from(context).inflate(layoutId, parent,
 				false);
-		// setTag
+		//  当孩子生出来的时候找到他们的引用，存放在记事本，放在父亲的口袋
 		mConvertView.setTag(this);
 	}
 
 	/**
 	 * 拿到一个ViewHolder对象
-	 * 
-	 * @param context
-	 * @param convertView
-	 * @param parent
-	 * @param layoutId
-	 * @param position
-	 * @return
-	 */
+	*/
 	public static ViewHolder get(Context context, View convertView,
 			ViewGroup parent, int layoutId, int position)
 	{
+		// ① 减少内存中view对象创建的个数
 		if (convertView == null)
 		{
 			return new ViewHolder(context, parent, layoutId, position);
@@ -64,6 +58,7 @@ public class ViewHolder
 	public <T extends View> T getView(int viewId)
 	{
 		View view = mViews.get(viewId);
+		// ② 减少子孩子查询的次数  内存中对象的地址。
 		if (view == null)
 		{
 			view = mConvertView.findViewById(viewId);
