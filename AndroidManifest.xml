@@ -61,6 +61,7 @@
         
         <service android:name="com.mobile.safe.service.GPSService"/>
         <service android:name="com.mobile.safe.service.AddressService"/>
+        <service android:name="com.mobile.safe.service.CallSmsSafeService"/>
     
               
          <!--监听开机启动完成的广播  -->

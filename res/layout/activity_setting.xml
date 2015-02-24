@@ -38,5 +38,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" >
     </com.mobile.safe.ui.SettingClickView>
+    
+       <com.mobile.safe.ui.SettingItemView
+        android:id="@+id/siv_callsms_safe"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        ymangu:desc_off="黑名单拦截已经关闭"
+        ymangu:desc_on="黑名单拦截已经开启"
+        ymangu:mtitle="黑名单拦截设置" >
+    </com.mobile.safe.ui.SettingItemView>
    
 </LinearLayout>

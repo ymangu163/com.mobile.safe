@@ -51,6 +51,17 @@ public class CallSmsSafeActivity extends Activity {
 						}	
 						
 						 holder.setText(R.id.tv_black_number, item.getNumber());
+						 
+						 /*
+						 * 现象：点击ListView的Item,item中有一个ImageView.
+							若ImageView设置了监听事件，则Item背景变化时，ImageView不变化；
+							若ImageView未设置监听事件，则Item背景变化时，ImageView也变化；
+							事件传递原理：
+							  点击时实现点击的是手机屏幕硬件，硬件驱动程序解析点击的位置并告诉系统；系统把点击事件一层层向子view传递；若最终级的子view 设置了OnClickListener点击监听事件，则把该事件消费掉；
+							  若最终级的子View未设置点击监听事件，则把该事件又一层层向上传递回去，看哪个设置了点击监听；
+							  若都没有设置监听，则不处理。
+						 */
+						 
 						 holder.getView(R.id.iv_delete).setOnClickListener(new OnClickListener() {
 							@Override
 							public void onClick(View v) {
