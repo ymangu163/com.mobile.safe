@@ -4,9 +4,13 @@ import java.lang.reflect.Method;
 
 import android.app.Service;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.ContentObserver;
+import android.net.Uri;
+import android.os.Handler;
 import android.os.IBinder;
 import android.telephony.PhoneStateListener;
 import android.telephony.SmsMessage;
@@ -61,7 +65,15 @@ public class CallSmsSafeService extends Service {
 			case TelephonyManager.CALL_STATE_RINGING:  //响铃状态
 				String result = dao.findMode(incomingNumber);
 				if("1".equals(result)||"3".equals(result)){
+					//删除呼叫记录
+					//另外一个应用程序联系人的应用的私有数据库
+//					deleteCallLog(incomingNumber);
+					//观察呼叫记录数据库内容的变化
+					Uri uri = Uri.parse("content://call_log/calls");
+					getContentResolver().registerContentObserver(uri,true,new CallLogObserver(incomingNumber,new Handler()));
+					
 					LogUtils.i("挂断电话。。。。");
+					////挂断电话 另外一个进程里面运行的 远程服务的方法。方法调用后,呼叫记录可能还没有生产。
 					endCall();
 				
 				break;	
@@ -69,7 +81,8 @@ public class CallSmsSafeService extends Service {
 			super.onCallStateChanged(state, incomingNumber);
 		}	
 	}
-	
+
+
 		public void endCall() {
 			
 			//通过反射，加载servicemanager的字节码
@@ -86,7 +99,39 @@ public class CallSmsSafeService extends Service {
 		}	
 	}
 	
+	/**
+	 * 利用内容提供者删除呼叫记录
+	 */
+	private void deleteCallLog(String incomingNumber) {
+		ContentResolver resolver = getContentResolver();
+		//呼叫记录uri的路径
+		Uri uri = Uri.parse("content://call_log/calls");
+		System.out.println("删除 "+incomingNumber);
+		resolver.delete(uri,"number=?",new String[]{incomingNumber});
+		
+	}
 	
+	/**
+	 * 监听通话记录
+	 */
+	private class CallLogObserver extends ContentObserver{
+		private String incomingNumber;
+		public CallLogObserver( String incomingNumber,Handler handler) {
+			super(handler);
+			this.incomingNumber = incomingNumber;
+		}
+		@Override
+		public void onChange(boolean selfChange) {
+			System.out.println("数据库产生了呼叫记录");
+			getContentResolver().unregisterContentObserver(this);  //只观察 一会，不用一直观察
+			deleteCallLog(incomingNumber);  // 观察的数据库一变化 ，就删除掉记录
+			super.onChange(selfChange);
+		}
+		
+		
+		
+		
+	}
 	
 
 	private class InnerSmsReceiver extends BroadcastReceiver{
