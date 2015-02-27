@@ -30,7 +30,19 @@ import android.util.Xml;
  */
 public class SmsUtils {
 	
-	
+	public interface BackUpCallBack{
+		/**
+		 * 短信调用前调用的方法
+		 */
+		public void beforeSmsBackup(int total);
+		
+		/**
+		 * 短信备份中调用的方法 
+		 * @param progress 当前备份的进度。
+		 */
+		public void onSmsBackup(int progress);
+		
+	}
 	
 	
 	/**
@@ -38,7 +50,7 @@ public class SmsUtils {
 	 * @param context 上下文
 	 * @param pd 进度条对话框
 	 */
-	public static void backupSms(Context context,ProgressDialog pd) throws Exception{
+	public static void backupSms(Context context,BackUpCallBack backupCallback) throws Exception{
 		ContentResolver resolver = context.getContentResolver();
 		File file = new File(Environment.getExternalStorageDirectory(),"backuo.xml");
 		FileOutputStream fos = new FileOutputStream(file);
@@ -51,10 +63,10 @@ public class SmsUtils {
 				Uri uri = Uri.parse("content://sms/");
 				Cursor cursor = resolver.query(uri,new String[]{"body","address","type","date"}, null, null, null);
 				//开始备份的时候,设置进度条的最大值
-				int max=cursor.getCount();
-				pd.setMax(max);
+//				int max=cursor.getCount();
+//				pd.setMax(max);
 				
-//				backupCallback.beforeSmsBackup(cursor.getCount());
+				backupCallback.beforeSmsBackup(cursor.getCount());
 				int progress = 0;
 				while (cursor.moveToNext()) {
 					Thread.sleep(100);
@@ -84,12 +96,13 @@ public class SmsUtils {
 					serializer.endTag(null,"sms");
 					//备份过程中,增加进度
 					progress++;
-					pd.setProgress(progress);
-//					backupCallback.onSmsBackup(progress);
+//					pd.setProgress(progress);
+					backupCallback.onSmsBackup(progress);
 				}
 				serializer.endTag(null,"smss");
 				serializer.endDocument();
 				fos.close();
+				cursor.close();
 	}
 
 }

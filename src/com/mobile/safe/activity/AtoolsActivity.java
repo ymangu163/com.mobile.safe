@@ -2,6 +2,7 @@ package com.mobile.safe.activity;
 
 import com.mobile.safe.R;
 import com.mobile.safe.utils.SmsUtils;
+import com.mobile.safe.utils.SmsUtils.BackUpCallBack;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -23,10 +24,8 @@ public class AtoolsActivity extends Activity {
 	 * 点击事件，进入号码归属地查询的页面
 	 */
 	public void numberQuery(View view){
-		
 		Intent intentv = new Intent(this,NumberAddressQueryActivity.class);
-		startActivity(intentv);
-	
+		startActivity(intentv);	
 	}	
 	
 	//点击事件 :短信的备份
@@ -42,7 +41,18 @@ public class AtoolsActivity extends Activity {
 					@Override
 					public void run() {
 					try {
-							SmsUtils.backupSms(AtoolsActivity.this,pd);
+							SmsUtils.backupSms(AtoolsActivity.this,new BackUpCallBack(){
+
+								@Override
+								public void beforeSmsBackup(int total) {
+									pd.setMax(total);
+								}
+
+								@Override
+								public void onSmsBackup(int progress) {
+									pd.setProgress(progress);
+								}								
+							});
 							runOnUiThread(new Runnable() {								
 								@Override
 								public void run() {
