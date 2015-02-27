@@ -7,6 +7,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.SystemClock;
 
 import com.mobile.safe.bean.BlackNumberInfo;
 import com.mobile.safe.db.BlackNumberDBOpenHelper;
@@ -57,6 +58,12 @@ public class BlackNumberDao {
 	 * @return
 	 */
 	public List<BlackNumberInfo> findAll(){
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
 		List<BlackNumberInfo> result = new ArrayList<BlackNumberInfo>();
 		SQLiteDatabase db = helper.getReadableDatabase();
 		Cursor cursor = db.rawQuery("select number,mode from blacknumber order by _id desc", null);
@@ -72,6 +79,43 @@ public class BlackNumberDao {
 		db.close();
 		return result;
 	}
+	
+	/**
+	 * 查询部分黑名单号码
+	 * @param offset 从哪个位置获取数据
+	 * @param maxnumber 一起最多获取多少条记录
+	 * @return 返回查询出来的号码信息
+	 * 
+	 * 分页查找的 SQL语句：
+	 select * from  blacknumber  limit 10  offset  20 ;   // 每次10条，从20 的地方开始
+	 select * from  blacknumber  limit 10，20 ;   // 是一样的功能，  从20 的地方开始，每次10条
+	 limit ， offset   只能加在 sql 语句的末尾
+	 * 
+	 */
+	public List<BlackNumberInfo> findPart(int offset,int maxnumber){
+		SystemClock.sleep(500);
+		List<BlackNumberInfo> result = new ArrayList<BlackNumberInfo>();
+		SQLiteDatabase db = helper.getReadableDatabase(); 
+		//limit 10 offset 10只能写到末尾
+		Cursor cursor = db.rawQuery("select number,mode from blacknumber order by _id desc limit ? offset ?",
+				new String[]{String.valueOf(maxnumber),String.valueOf(offset)});
+		while(cursor.moveToNext()){
+			BlackNumberInfo info = new BlackNumberInfo();
+			String number = cursor.getString(0);
+			String mode = cursor.getString(1);
+			info.setNumber(number);
+			info.setMode(mode);
+			result.add(info);
+		}
+		cursor.close();
+		db.close();
+		return result;
+	}
+	
+	
+	
+	
+	
 	
 	/**
 	 * 添加黑名单号码
