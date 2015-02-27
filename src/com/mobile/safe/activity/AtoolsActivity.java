@@ -73,18 +73,19 @@ public class AtoolsActivity extends Activity {
 					pd.dismiss();
 					
 					}
-				}.start();
-				
-				
-	
-				
+				}.start();	
 			}
 		}
 		
 	
 		//点击事件 :短信的还原
 		public void smsRestore(View view){
-			
+			try {
+				SmsUtils.restoreSms(this,false);
+				Toast.makeText(this,"还原成功！",0).show();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			
 			
 		}

@@ -1,12 +1,17 @@
 package com.mobile.safe.utils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
+import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlSerializer;
+
+import com.mobile.safe.activity.AtoolsActivity;
 
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -102,7 +107,56 @@ public class SmsUtils {
 				serializer.endTag(null,"smss");
 				serializer.endDocument();
 				fos.close();
-				cursor.close();
+//				cursor.close();
+	}
+
+
+	public static void restoreSms(Context context, boolean flag) throws Exception{
+		Uri uri = Uri.parse("content://sms/");
+		if(flag){ //true则清除本身的短信
+			context.getContentResolver().delete(uri,null,null);
+		}
+		XmlPullParser pull = Xml.newPullParser();
+		File file = new File(Environment.getExternalStorageDirectory(),"backuo.xml");
+		FileInputStream fis = new FileInputStream(file);
+		pull.setInput(fis,"utf-8");
+		int eventType = pull.getEventType();
+		String body = null;
+		String date = null;
+		String type = null;
+		String address = null;
+		ContentValues values = null;
+		
+		while(eventType != XmlPullParser.END_DOCUMENT){
+			String tagName = pull.getName();
+			switch (eventType) {
+			case XmlPullParser.START_TAG: //如果是开始标签
+				if("body".equals(tagName)){
+					body = pull.nextText();
+				}else if("date".equals(tagName)){
+					date = pull.nextText();
+				}else if("type".equals(tagName)){
+					type = pull.nextText();
+				}else if("address".equals(tagName)){
+					address = pull.nextText();
+				}
+				break;
+			case XmlPullParser.END_TAG:
+				if("sms".equals(tagName)){
+					values = new ContentValues();
+					values.put("body",body);
+					values.put("date",date);
+					values.put("type",type);
+					values.put("address",address);
+					context.getContentResolver().insert(uri, values);
+				}
+				break;
+			
+			}
+			eventType = pull.next();			
+		}
+		fis.close();	
+		
 	}
 
 }
