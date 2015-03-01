@@ -1,15 +1,21 @@
 package com.mobile.safe.activity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StatFs;
 import android.text.format.Formatter;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.lidroid.xutils.ViewUtils;
@@ -38,7 +44,7 @@ public class AppManagerActivity extends Activity {
 		private List<AppInfo> userAppInfos;//所有用户程序包集合
 		private List<AppInfo> systemAppInfos;//所有系统程序包集合
 		
-		private CommonAdapter adapter;
+		private AppManagerAdapter adapter;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -58,24 +64,23 @@ public class AppManagerActivity extends Activity {
 			public void run() {
 			//所有应用程序包的集合
 			appInfos = AppInfoProvider.getAppInfos(AppManagerActivity.this);
+			userAppInfos = new ArrayList<AppInfo>();
+			systemAppInfos = new ArrayList<AppInfo>();
+			for (AppInfo info : appInfos) {
+				if(info.isUserApp()){ //如果是 用户程序
+					userAppInfos.add(info);
+				}else{
+					systemAppInfos.add(info);
+				}
+			}
+			
 				
 			// 加载listview的数据适配器
 			runOnUiThread(new Runnable() {
-
 				@Override
 				public void run() {
 					if(adapter == null){ //如果适配器为空 则创建适配器对象 为listview设置adapter
-						adapter = new CommonAdapter<AppInfo>(AppManagerActivity.this,appInfos,
-									R.layout.list_item_appinfo) {
-							@Override
-							public void convert(ViewHolder holder, AppInfo item) {
-								
-								holder.setImageDrawable(R.id.iv_app_icon, item.getIcon());
-								holder.setText(R.id.tv_app_name, item.getName());							
-								
-							}
-							
-						};
+						adapter = new AppManagerAdapter();
 						lv_app_manager.setAdapter(adapter);
 					}else{//
 						adapter.notifyDataSetChanged(); //动态更新ListView
@@ -87,15 +92,80 @@ public class AppManagerActivity extends Activity {
 				
 			};
 
-			
-			
-			
-			
 		}.start();
 		
-		
-		
 	}
+	
+	/**
+	 * ListView的适配器
+	 */
+	private class AppManagerAdapter extends BaseAdapter{
+		@Override
+		public int getCount() {
+			return userAppInfos.size()+1+systemAppInfos.size()+1;
+		}		
+		
+		@Override
+		public Object getItem(int position) {
+			return null;
+		}
+		@Override
+		public long getItemId(int position) {
+			return 0;
+		}
+		public View getView(int position, View convertView, ViewGroup parent) {
+			AppInfo appInfo;
+			if(position == 0){ //显示用户程序有多少个的小标签
+				TextView tv = new TextView(getApplication());
+				tv.setTextColor(Color.WHITE);
+				tv.setBackgroundColor(Color.GRAY);
+				tv.setText("用户程序:"+userAppInfos.size()+"个");
+				return tv;
+			}else if(position == (userAppInfos.size()+1)){
+				TextView tv = new TextView(getApplicationContext());
+				tv.setTextColor(Color.WHITE);
+				tv.setBackgroundColor(Color.GRAY);
+				tv.setText("系统程序:"+systemAppInfos.size()+"个");
+				return tv;
+			}else if(position <= userAppInfos.size()){
+				int newPosition = position-1;
+				appInfo = userAppInfos.get(newPosition);
+			}else{
+				int newPosition = position-1-userAppInfos.size()-1;
+				appInfo = systemAppInfos.get(newPosition);
+			}
+			View view;
+			ViewHolder holder;
+			// 不仅需要检查是否为空，还要判断是否是合适的类型去复用
+			if(convertView != null && convertView instanceof RelativeLayout){
+				view = convertView;
+				holder = (ViewHolder) view.getTag();
+			}else{
+				view = View.inflate(getApplicationContext(),R.layout.list_item_appinfo,null);
+				holder = new ViewHolder();
+				holder.iv_icon = (ImageView) view.findViewById(R.id.iv_app_icon);
+				holder.tv_location = (TextView) view.findViewById(R.id.tv_app_location);
+				holder.tv_name = (TextView) view.findViewById(R.id.tv_app_name);
+				view.setTag(holder);
+			}
+			holder.iv_icon.setImageDrawable(appInfo.getIcon());
+			holder.tv_name.setText(appInfo.getName());
+			if(appInfo.isInRom()){
+				holder.tv_location.setText("手机内存");
+			}else{
+				holder.tv_location.setText("外部存储");
+			}
+			return view;
+		}
+	}
+	
+	static class ViewHolder {
+		TextView tv_name;
+		TextView tv_location;
+		ImageView iv_icon;
+	}
+	
+	
 
 	/**
 	 * 显示存储的剩余空间

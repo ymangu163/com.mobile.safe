@@ -65,7 +65,9 @@
             android:background="#ff888888"
             android:textColor="#ffffff"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+             />
     </FrameLayout>
 
 </LinearLayout>

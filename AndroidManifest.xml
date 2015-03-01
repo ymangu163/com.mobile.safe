@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.mobile.safe"
+    android:installLocation="preferExternal"
     android:versionCode="2"
     android:versionName="2.0" >
+    <!-- installLocation  指定安装位置
+    	preferExternal  尽量在外部存储上
+    	internalOnly  只能装在手机内存里
+     -->
 
 <!-- 权限 -->
 	<uses-permission android:name="android.permission.INTERNET"/><!-- 访问网络权限 -->
