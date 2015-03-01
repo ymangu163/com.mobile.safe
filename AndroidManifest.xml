@@ -65,6 +65,7 @@
         <activity  android:name=".activity.AtoolsActivity"/>
         <activity  android:name=".activity.NumberAddressQueryActivity"/>
         <activity  android:name=".activity.CallSmsSafeActivity"/>
+        <activity  android:name=".activity.AppManagerActivity"/>
         
         
         <service android:name="com.mobile.safe.service.GPSService"/>
