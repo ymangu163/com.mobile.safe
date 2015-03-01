@@ -2,6 +2,7 @@ package com.mobile.safe.adapter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -109,6 +110,14 @@ public class ViewHolder
 		view.setImageBitmap(bm);
 		return this;
 	}
+	
+	public ViewHolder setImageDrawable(int viewId, Drawable drawable)
+	{
+		ImageView view = getView(viewId);
+		view.setImageDrawable(drawable);
+		return this;
+	}
+	
 
 	/**
 	 * 为ImageView设置图片
