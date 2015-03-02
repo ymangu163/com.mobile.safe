@@ -11,6 +11,8 @@ import android.os.StatFs;
 import android.text.format.Formatter;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -53,6 +55,38 @@ public class AppManagerActivity extends Activity {
 		ViewUtils.inject(this);
 		showAvailableSize();//显示存储的剩余空间
 		fillListViewData();
+		// 给listview注册一个滚动的监听器
+				lv_app_manager.setOnScrollListener(new OnScrollListener() {
+					//当前滚动的状态
+					@Override
+					public void onScrollStateChanged(AbsListView view,int scrollState) {
+						switch (scrollState) {
+						case OnScrollListener.SCROLL_STATE_FLING: //开始滚动
+							break;
+						case OnScrollListener.SCROLL_STATE_TOUCH_SCROLL://正在滚动
+							break;
+						case OnScrollListener.SCROLL_STATE_IDLE://停止滚动
+							break;
+					}					
+					}
+					// 滚动的时候调用的方法。
+					// firstVisibleItem 第一个可见条目在listview集合里面的位置。
+					@Override
+					public void onScroll(AbsListView view,int firstVisibleItem, int visibleItemCount,
+							int totalItemCount) {
+						if(userAppInfos != null && systemAppInfos != null){
+							if(firstVisibleItem > userAppInfos.size()){
+								tv_status.setText("系统程序:"+systemAppInfos.size()+"个");
+							}else{
+								tv_status.setText("用户程序:"+userAppInfos.size()+"个");
+							}
+						}
+					}					
+				});
+		
+		
+		
+		
 	}
 	
 	/**
@@ -86,13 +120,17 @@ public class AppManagerActivity extends Activity {
 						adapter.notifyDataSetChanged(); //动态更新ListView
 					}
 					ll_loading.setVisibility(View.INVISIBLE);	
-				}
-				
-			});
-				
+					tv_status.setVisibility(View.VISIBLE);
+				}				
+			});				
 			};
 
 		}.start();
+		
+		
+		
+		
+		
 		
 	}
 	
