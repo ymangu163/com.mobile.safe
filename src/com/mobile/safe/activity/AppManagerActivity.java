@@ -4,14 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StatFs;
 import android.text.format.Formatter;
 import android.view.Gravity;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -28,6 +33,7 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.lidroid.xutils.ViewUtils;
 import com.lidroid.xutils.view.annotation.ViewInject;
@@ -38,7 +44,7 @@ import com.mobile.safe.bean.AppInfo;
 import com.mobile.safe.engine.AppInfoProvider;
 import com.mobile.safe.utils.DensityUtil;
 
-public class AppManagerActivity extends Activity {
+public class AppManagerActivity extends Activity implements OnClickListener {
 
 	@ViewInject(R.id.tv_status)
 	private TextView tv_status;
@@ -122,6 +128,12 @@ public class AppManagerActivity extends Activity {
 						ll_uninstall = (LinearLayout) contentView.findViewById(R.id.ll_uninstall);
 						ll_start = (LinearLayout) contentView.findViewById(R.id.ll_start);
 						ll_share = (LinearLayout) contentView.findViewById(R.id.ll_share);
+						
+						//为悬浮窗体的各项设置点击事件
+						ll_uninstall.setOnClickListener(AppManagerActivity.this);
+						ll_start.setOnClickListener(AppManagerActivity.this);
+						ll_share.setOnClickListener(AppManagerActivity.this);
+						
 						//弹出悬浮窗体
 						popupWindow = new PopupWindow(contentView,-2,-2);           
 						// 动画效果的播放必须要求窗体有背景颜色
@@ -130,7 +142,7 @@ public class AppManagerActivity extends Activity {
 						popupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 						int[] location = new int[2];
 						view.getLocationInWindow(location);
-						int dip = 100;
+						int dip = 60;
 						int px = DensityUtil.dip2px(getApplicationContext(),dip);
 						popupWindow.showAtLocation(parent,Gravity.LEFT|Gravity.TOP,px,location[1]);
 						
@@ -198,11 +210,6 @@ public class AppManagerActivity extends Activity {
 			};
 
 		}.start();
-		
-		
-		
-		
-		
 		
 	}
 	
@@ -305,8 +312,79 @@ public class AppManagerActivity extends Activity {
 	}
 	
 	
-	
-	
+	/*
+	 * . 开户一个应用程序
+	 */
+	private void startApplication(){
+		// 查询这个应用程序的入口Activity,把它开启起来
+		PackageManager pm=getPackageManager();
+//		Intent intent=new Intent();
+//		intent.setAction("android.intent.action.MAIN");
+//		intent.addCategory("android.intent.category.LAUNCHER");
+//		// 查询出来了所有的手机上具有启动能力的Activity
+//		List<ResolveInfo> infos=pm.queryIntentActivities(intent, PackageManager.GET_INTENT_FILTERS);
+		Intent intent = pm.getLaunchIntentForPackage(appInfo.getPackname());
+		if(intent != null){
+			startActivity(intent);
+		}else{
+			Toast.makeText(this,"不能开启当前应用！",0).show();
+		}
+		
+	}
+
+
+	/**
+	 * 悬浮窗体的点击事件
+	 */
+	@Override
+	public void onClick(View v) {
+		dismissPopupWindow();
+		switch (v.getId()) {
+		case R.id.ll_uninstall: //卸载
+			if(appInfo.isUserApp()){
+				uninstallAppliation();
+			}else{
+				Toast.makeText(getApplicationContext(),"系统应用必须有root权限",0).show();
+			}
+			break;
+		case R.id.ll_start: //开启
+			startApplication();
+			break;
+		case R.id.ll_share: //分享
+			shareApplication();
+			break;
+	}
+		
+		
+	}
+
+
+
+	private void shareApplication() {
+		Intent intent = new Intent();
+		intent.setAction("android.intent.action.SEND");
+		intent.addCategory(Intent.CATEGORY_DEFAULT);
+		intent.setType("text/plain");
+		intent.putExtra(Intent.EXTRA_TEXT,"推荐您使用一款软件,名称为: "+appInfo.getName());
+		startActivity(intent);
+		
+	}
+
+	private void uninstallAppliation() {
+		Intent intent = new Intent();
+		intent.setAction("android.intent.action.View");
+		intent.setAction("android.intent.action.DELETE");
+		intent.addCategory("android.intent.category.DEFAULT");
+		intent.setData(Uri.parse("package:"+appInfo.getPackname()));
+		startActivityForResult(intent,0);	
+		
+	}
+	//刷新界面
+		@Override
+		protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+			fillListViewData();
+			super.onActivityResult(requestCode, resultCode, data);
+		}
 	
 	
 }
