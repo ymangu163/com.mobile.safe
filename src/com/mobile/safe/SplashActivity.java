@@ -30,9 +30,11 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -79,7 +81,7 @@ public class SplashActivity extends Activity {
 		
 		tv_splash_version.setText("版本号" + getVersionName());
 		boolean update = sp.getBoolean("update", false);
-		
+		installShortCut();
 		//拷贝数据库
 	   copyDB();
 		
@@ -105,6 +107,29 @@ public class SplashActivity extends Activity {
 		
 	}
 	
+	private void installShortCut() {
+		boolean shortcut = sp.getBoolean("shortcut", false);
+		if(shortcut)
+			return;
+		//发送广播的意图，要创建快捷图标了
+				Intent intent = new Intent();
+				intent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
+				//快捷方式  要包含3个重要的信息 1，名称 2.图标 3.干什么事情
+				intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, "手机卫士");
+				intent.putExtra(Intent.EXTRA_SHORTCUT_ICON, BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher));
+				//桌面点击图标对应的意图。
+				Intent shortcutIntent = new Intent();
+				shortcutIntent.setAction("android.intent.action.MAIN");
+				shortcutIntent.addCategory("android.intent.category.LAUNCHER");
+				shortcutIntent.setClassName(getPackageName(), "com.qzd.mobilesafe.SplashActivity");
+				intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
+				sendBroadcast(intent);
+				sendBroadcast(intent);
+				Editor editor = sp.edit();
+				editor.putBoolean("shortcut", true);
+				editor.commit();
+	}
+
 	/**
 	 * //path 把address.db这个数据库拷贝到data/data/《包名》/files/address.db
 	 */
