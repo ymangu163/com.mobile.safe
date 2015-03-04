@@ -71,6 +71,7 @@
         <activity  android:name=".activity.NumberAddressQueryActivity"/>
         <activity  android:name=".activity.CallSmsSafeActivity"/>
         <activity  android:name=".activity.AppManagerActivity"/>
+        <activity  android:name=".activity.TaskManagerActivity"/>
         
         
         <service android:name="com.mobile.safe.service.GPSService"/>
