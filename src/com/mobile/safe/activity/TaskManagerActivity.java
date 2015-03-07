@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.format.Formatter;
@@ -20,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.mobile.safe.R;
 import com.mobile.safe.bean.TaskInfo;
@@ -60,12 +62,7 @@ public class TaskManagerActivity extends Activity {
 		
 		tv_mem_info = (TextView) findViewById(R.id.tv_mem_info);
 		tv_process_count = (TextView) findViewById(R.id.tv_process_count);
-		runningProcessCount = SystemInfoUtils.getRunningProcessCount(this);//获取正在运行的进程
-		
-		availRam = SystemInfoUtils.getAvailRam(this);//获取可用内存
-		totalRam = SystemInfoUtils.getTotalRam(this); //获取总内存
-		tv_process_count.setText("运行中进程:"+runningProcessCount+"个");
-		tv_mem_info.setText("剩余/总内存:"+Formatter.formatFileSize(this,availRam)+"/"+Formatter.formatFileSize(this, totalRam));
+		setTitle();
 		
 		//ListView滚动事件
 		lv_taskmanager.setOnScrollListener(new OnScrollListener() {
@@ -115,6 +112,14 @@ public class TaskManagerActivity extends Activity {
 		});
 		
 	}
+
+	private void setTitle() {
+		runningProcessCount = SystemInfoUtils.getRunningProcessCount(this);//获取正在运行的进程		
+		availRam = SystemInfoUtils.getAvailRam(this);//获取可用内存
+		totalRam = SystemInfoUtils.getTotalRam(this); //获取总内存
+		tv_process_count.setText("运行中进程:"+runningProcessCount+"个");
+		tv_mem_info.setText("剩余/总内存:"+Formatter.formatFileSize(this,availRam)+"/"+Formatter.formatFileSize(this, totalRam));
+	}
 	
 	private void fillData() {
 		ll_loading.setVisibility(View.VISIBLE);
@@ -141,13 +146,78 @@ public class TaskManagerActivity extends Activity {
 						}else{
 							adapter.notifyDataSetChanged();
 						}
-//						setTitle();
+						setTitle();
 					}
 				});
 			};
 		}.start();
 				
 	}
+	
+	/**
+	 * 选择全部
+	 */
+	public void selectAll(View view){
+		for (TaskInfo info : allTaskInfos) {
+			if(getPackageName().equals(info.getPackname())){
+				continue;
+			}
+			info.setChecked(true);
+		}
+		adapter.notifyDataSetChanged();
+	}
+	
+	/**
+	 * 反选
+	 */
+	public void unSelect(View view){
+		for (TaskInfo info : allTaskInfos) {
+			if(getPackageName().equals(info.getPackname())){
+				continue;
+			}
+			info.setChecked(!info.isChecked());
+		}
+		adapter.notifyDataSetChanged();
+	}
+	
+	/**
+	 * 一键清理
+	 */
+	public void killAll(View view){
+		ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+		int count = 0;
+		long savedMem = 0;
+		//迭代时不能去修改集合大小； 通过第3方集合来记录
+		List<TaskInfo> killedTaskinfos = new ArrayList<TaskInfo>();
+		for (TaskInfo info : allTaskInfos) {
+			if(info.isChecked()){ //杀死这些被勾选的进程
+				am.killBackgroundProcesses(info.getPackname());//杀死进程
+				if(info.isUserTask()){
+					userTaskInfos.remove(info);
+				}else{
+					sysTaskInfos.remove(info);
+				}
+				killedTaskinfos.add(info);
+				count++;
+				savedMem+=info.getMemsize();
+			}
+		}
+		allTaskInfos.removeAll(killedTaskinfos);
+		adapter.notifyDataSetChanged();
+		Toast.makeText(this,"杀死了"+count+"个进程,释放了"+Formatter.formatFileSize(this,savedMem)+"内存",1).show();
+		runningProcessCount -= count;
+		availRam += savedMem;
+		tv_process_count.setText("运行中的进程:"+runningProcessCount+"个");
+		tv_mem_info.setText("剩余/总内存:"+Formatter.formatFileSize(this,availRam)+"/"+Formatter.formatFileSize(this,totalRam));
+		
+		
+	}
+	
+	
+	
+	
+	
+	
 
 	private class TaskManagerAdapter extends BaseAdapter{
 		@Override
@@ -206,7 +276,11 @@ public class TaskManagerActivity extends Activity {
 			System.out.println("holder.cb_status= "+holder.cb_status);
 			System.out.println("taskInfo = "+taskInfo);
 			holder.cb_status.setChecked(taskInfo.isChecked());
-			
+			if(getPackageName().equals(taskInfo.getPackname())){
+				holder.cb_status.setVisibility(View.INVISIBLE);
+			}else{
+				holder.cb_status.setVisibility(View.VISIBLE);
+			}
 			return view;
 		}
 	}
