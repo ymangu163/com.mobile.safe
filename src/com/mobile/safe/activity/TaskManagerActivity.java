@@ -5,6 +5,8 @@ import java.util.List;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.format.Formatter;
@@ -140,6 +142,7 @@ public class TaskManagerActivity extends Activity {
 					@Override
 					public void run() {
 						ll_loading.setVisibility(View.INVISIBLE);
+						tv_status.setVisibility(View.VISIBLE);
 						if(adapter == null){
 							adapter = new TaskManagerAdapter();
 							lv_taskmanager.setAdapter(adapter);
@@ -213,7 +216,13 @@ public class TaskManagerActivity extends Activity {
 		
 	}
 	
-	
+	/**
+	 * 设置
+	 */
+	public void enterSetting(View view){
+		Intent intent = new Intent(this,TaskSettingActivity.class);
+		startActivity(intent);
+	}
 	
 	
 	
@@ -222,7 +231,12 @@ public class TaskManagerActivity extends Activity {
 	private class TaskManagerAdapter extends BaseAdapter{
 		@Override
 		public int getCount() {
-			return userTaskInfos.size() + 1 + sysTaskInfos.size() +1;
+			SharedPreferences sp = getSharedPreferences("config",MODE_PRIVATE);
+			if(sp.getBoolean("showsystem",false)){
+				return userTaskInfos.size() + 1 + sysTaskInfos.size() +1;
+			}else{
+				return userTaskInfos.size()+1;
+			}
 		}
 
 		@Override

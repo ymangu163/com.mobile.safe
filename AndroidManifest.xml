@@ -72,11 +72,13 @@
         <activity  android:name=".activity.CallSmsSafeActivity"/>
         <activity  android:name=".activity.AppManagerActivity"/>
         <activity  android:name=".activity.TaskManagerActivity"/>
+        <activity  android:name=".activity.TaskSettingActivity"/>
         
         
         <service android:name="com.mobile.safe.service.GPSService"/>
         <service android:name="com.mobile.safe.service.AddressService"/>
         <service android:name="com.mobile.safe.service.CallSmsSafeService"/>
+        <service android:name="com.mobile.safe.service.AutoCleanService"/>
     
               
          <!--监听开机启动完成的广播  -->
