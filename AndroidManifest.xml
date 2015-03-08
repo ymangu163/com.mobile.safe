@@ -109,6 +109,18 @@
                 <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
             </intent-filter>
         </receiver>
+        
+          <!--  widget 小控件-->
+          <receiver android:name="com.mobile.safe.receiver.MyWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/process_widget_provider" />
+        </receiver>
+          
+          
           
 <!--         <receiver android:name="com.mobile.safe.receiver.OutCallReceiver"
              android:exported="true"> 
