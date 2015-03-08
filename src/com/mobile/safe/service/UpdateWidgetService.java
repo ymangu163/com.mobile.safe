@@ -64,7 +64,7 @@ public class UpdateWidgetService extends Service {
 					RemoteViews views = new RemoteViews(getPackageName(),R.layout.process_widget);
 					views.setTextViewText(R.id.process_count,"正在运行的进程:"+SystemInfoUtils.getRunningProcessCount(getApplicationContext())+"个");
 					views.setTextViewText(R.id.process_memory,"可用内存:"+(SystemInfoUtils.getAvailRam(getApplicationContext())/1024/1024)+"MB");
-					
+					System.out.println("更新widget.");
 					
 					// PendingIntent 描述一个动作,这个动作是由另外的一个应用程序执行的.
 					// 自定义一个广播事件,杀死后台进度的事件

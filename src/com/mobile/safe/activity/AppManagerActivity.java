@@ -17,6 +17,7 @@ import android.text.format.Formatter;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -26,6 +27,7 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -41,6 +43,7 @@ import com.mobile.safe.R;
 import com.mobile.safe.adapter.CommonAdapter;
 import com.mobile.safe.adapter.ViewHolder;
 import com.mobile.safe.bean.AppInfo;
+import com.mobile.safe.db.dao.ApplockDao;
 import com.mobile.safe.engine.AppInfoProvider;
 import com.mobile.safe.utils.DensityUtil;
 
@@ -63,6 +66,7 @@ public class AppManagerActivity extends Activity implements OnClickListener {
 		private List<AppInfo> systemAppInfos;//所有系统程序包集合
 		
 		private AppManagerAdapter adapter;
+		private ApplockDao dao;
 		//被点击的条目
 		private AppInfo appInfo;
 		private LinearLayout ll_start;//开启
@@ -74,6 +78,8 @@ public class AppManagerActivity extends Activity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_app_manager);
 		ViewUtils.inject(this);
+		dao=new ApplockDao(this);
+		
 		showAvailableSize();//显示存储的剩余空间
 		fillListViewData();
 		// 给listview注册一个滚动的监听器
@@ -116,6 +122,8 @@ public class AppManagerActivity extends Activity implements OnClickListener {
 							int position, long id) {
 						if(position == 0 || position == userAppInfos.size()+1){ //如果是"用户程序" 或者 "系统程序" 的小标签则直接返回
 							return;
+						}else if(position==(userAppInfos.size()+1)){
+							return;							
 						}else if(position <= userAppInfos.size()){
 							int newPosition = position - 1;
 							appInfo = userAppInfos.get(newPosition);
@@ -159,7 +167,38 @@ public class AppManagerActivity extends Activity implements OnClickListener {
 					
 				});
 		
-		
+				lv_app_manager.setOnItemLongClickListener(new OnItemLongClickListener() {
+
+					@Override
+					public boolean onItemLongClick(AdapterView<?> parent,View view, int position, long id) {
+						if(position == 0 || position == userAppInfos.size()+1){ //如果是"用户程序" 或者 "系统程序" 的小标签则直接返回
+							return  true;
+						}else if(position==(userAppInfos.size()+1)){
+							return true;							
+						}else if(position <= userAppInfos.size()){
+							int newPosition = position - 1;
+							appInfo = userAppInfos.get(newPosition);
+						}else{
+							int newPosition = position-1-userAppInfos.size()-1;
+							appInfo = systemAppInfos.get(newPosition);
+						}
+						
+						ViewHolder holder = (ViewHolder) view.getTag();
+						// 判断条目是否存在在程序锁数据库中
+						if(dao.find(appInfo.getPackname())){
+							dao.delete(appInfo.getPackname());
+							holder.iv_statis.setImageResource(R.drawable.unlock);
+						}else{
+							dao.add(appInfo.getPackname());
+							holder.iv_statis.setImageResource(R.drawable.lock);
+						}
+						
+						return true;
+					}
+				});
+				
+				
+				
 	}
 	//悬浮窗体
 	private PopupWindow popupWindow;
@@ -263,6 +302,7 @@ public class AppManagerActivity extends Activity implements OnClickListener {
 				holder.iv_icon = (ImageView) view.findViewById(R.id.iv_app_icon);
 				holder.tv_location = (TextView) view.findViewById(R.id.tv_app_location);
 				holder.tv_name = (TextView) view.findViewById(R.id.tv_app_name);
+				holder.iv_statis=(ImageView)view.findViewById(R.id.iv_status);
 				view.setTag(holder);
 			}
 			holder.iv_icon.setImageDrawable(appInfo.getIcon());
@@ -272,6 +312,13 @@ public class AppManagerActivity extends Activity implements OnClickListener {
 			}else{
 				holder.tv_location.setText("外部存储");
 			}
+			if(dao.find(appInfo.getPackname())){
+				holder.iv_statis.setImageResource(R.drawable.lock);
+			}else{
+				holder.iv_statis.setImageResource(R.drawable.unlock);
+			}
+			
+//			holder.iv_statis
 			return view;
 		}
 	}
@@ -280,6 +327,8 @@ public class AppManagerActivity extends Activity implements OnClickListener {
 		TextView tv_name;
 		TextView tv_location;
 		ImageView iv_icon;
+		ImageView iv_statis;
+		
 	}
 	
 	
