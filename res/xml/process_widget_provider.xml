@@ -2,5 +2,8 @@
 <appwidget-provider android:minWidth="294.0dip" 
     android:minHeight="72.0dip" 
     android:updatePeriodMillis="1800000" 
-    android:initialLayout="@layout/process_widget"
+    android:initialLayout="@layout/process_widget" 
+    android:previewImage="@drawable/ic_launcher"
   xmlns:android="http://schemas.android.com/apk/res/android" />
+
+  <!-- google 规定更新最小 也是半小时 -->

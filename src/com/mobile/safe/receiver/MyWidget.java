@@ -1,6 +1,11 @@
 package com.mobile.safe.receiver;
 
+import com.mobile.safe.service.UpdateWidgetService;
+
+import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
+import android.content.Context;
+import android.content.Intent;
 
 /*
  * 创建Widget的步骤：
@@ -10,5 +15,32 @@ import android.appwidget.AppWidgetProvider;
  */
 
 public class MyWidget extends AppWidgetProvider {
-
+	
+	// 创建和移除时都调用,时间片到了也会调用 
+	@Override
+	public void onReceive(Context context, Intent intent) {
+		
+		super.onReceive(context, intent);
+	}
+	
+	@Override
+	public void onUpdate(Context context, AppWidgetManager appWidgetManager,
+			int[] appWidgetIds) {
+		super.onUpdate(context, appWidgetManager, appWidgetIds);
+	}
+	
+	// 创建第一个时调用 
+	@Override
+	public void onEnabled(Context context) {
+		Intent i = new Intent(context,UpdateWidgetService.class);
+		context.startService(i);
+		super.onEnabled(context);
+	}
+	// 移除最后一个时调用 
+	@Override
+	public void onDisabled(Context context) {
+		Intent intent = new Intent(context,UpdateWidgetService.class);
+		context.stopService(intent);
+		super.onDisabled(context);
+	}
 }

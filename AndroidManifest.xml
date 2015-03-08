@@ -79,6 +79,7 @@
         <service android:name="com.mobile.safe.service.AddressService"/>
         <service android:name="com.mobile.safe.service.CallSmsSafeService"/>
         <service android:name="com.mobile.safe.service.AutoCleanService"/>
+        <service android:name="com.mobile.safe.service.UpdateWidgetService"/>
     
               
          <!--监听开机启动完成的广播  -->
@@ -120,7 +121,11 @@
                 android:resource="@xml/process_widget_provider" />
         </receiver>
           
-          
+          <receiver android:name="com.mobile.safe.receiver.KillAllRecevier">
+		    <intent-filter>
+		        <action android:name="com.qzd.mobilesafe.killall"/>
+		    </intent-filter>
+		</receiver>
           
 <!--         <receiver android:name="com.mobile.safe.receiver.OutCallReceiver"
              android:exported="true"> 
