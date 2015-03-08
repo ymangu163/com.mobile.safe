@@ -19,13 +19,14 @@ public class MyWidget extends AppWidgetProvider {
 	// 创建和移除时都调用,时间片到了也会调用 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		
+		System.out.println("MyWidget  onReceive.");
 		super.onReceive(context, intent);
 	}
 	
 	@Override
 	public void onUpdate(Context context, AppWidgetManager appWidgetManager,
 			int[] appWidgetIds) {
+		System.out.println("MyWidget  onUpdate.");
 		super.onUpdate(context, appWidgetManager, appWidgetIds);
 	}
 	
@@ -34,6 +35,7 @@ public class MyWidget extends AppWidgetProvider {
 	public void onEnabled(Context context) {
 		Intent i = new Intent(context,UpdateWidgetService.class);
 		context.startService(i);
+		System.out.println("MyWidget  onEnabled.");
 		super.onEnabled(context);
 	}
 	// 移除最后一个时调用 
@@ -41,6 +43,7 @@ public class MyWidget extends AppWidgetProvider {
 	public void onDisabled(Context context) {
 		Intent intent = new Intent(context,UpdateWidgetService.class);
 		context.stopService(intent);
+		System.out.println("MyWidget  onDisabled.");
 		super.onDisabled(context);
 	}
 }

@@ -10,8 +10,11 @@ import com.mobile.safe.utils.SystemInfoUtils;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.IBinder;
 import android.widget.RemoteViews;
 /**
@@ -22,6 +25,8 @@ public class UpdateWidgetService extends Service {
 	private TimerTask task;
 	//wedget的管理器
 	private AppWidgetManager awm;
+	private ScreenOffReceiver offreceiver;
+	private ScreenOnReceiver onreceiver;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -30,7 +35,10 @@ public class UpdateWidgetService extends Service {
 
 	@Override
 	public void onCreate() {
-		
+		onreceiver = new ScreenOnReceiver();
+		offreceiver = new ScreenOffReceiver();
+		registerReceiver(onreceiver,new IntentFilter(Intent.ACTION_SCREEN_ON));
+		registerReceiver(offreceiver,new IntentFilter(Intent.ACTION_SCREEN_OFF));
 		awm = AppWidgetManager.getInstance(this);
 		startTimer();
 		super.onCreate();
@@ -46,10 +54,9 @@ public class UpdateWidgetService extends Service {
 		通过RemoteView
 	 */
 			private void startTimer(){
-			
+				if(timer == null && task == null){
 			timer = new Timer();
 			task = new TimerTask() {
-
 				@Override
 				public void run() {
 					//设置更新的组件
@@ -74,13 +81,18 @@ public class UpdateWidgetService extends Service {
 		 *  参数2：第一次执行 隔多久后执行
 		 *  参数3：启动之后，隔多久执行一次
 		 */
-			timer.schedule(task,0,6000);
+			timer.schedule(task,0,2000);
 		}
+			}
 	
 	
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		unregisterReceiver(offreceiver);
+		unregisterReceiver(onreceiver);
+		offreceiver = null;
+		onreceiver = null;
 		stopTimer();
 	}
 
@@ -94,4 +106,21 @@ public class UpdateWidgetService extends Service {
 	}
 	
 	
+	//锁屏
+		private class ScreenOffReceiver extends BroadcastReceiver{
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				stopTimer();
+				System.out.println("手机锁屏了.");
+			}
+		}
+	
+		//解锁
+		private class ScreenOnReceiver extends BroadcastReceiver{
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				startTimer();
+				System.out.println("手机解锁了.");
+			}
+		}
 }
