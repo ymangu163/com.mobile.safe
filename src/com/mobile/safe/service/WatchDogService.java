@@ -5,7 +5,10 @@ import java.util.List;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningTaskInfo;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.IBinder;
 
 import com.mobile.safe.activity.EnterPwdActivity;
@@ -18,6 +21,10 @@ public class WatchDogService extends Service {
 	private boolean flag;
 	private List<String> protectPacknames;
 	private Intent intent;
+	private InnerReceiver innerReceiver;
+	private String tempStopProtectPackname;
+	private ScreenOffReceiver offreceiver;
+	
 	@Override
 	public IBinder onBind(Intent intent) {
 
@@ -26,6 +33,10 @@ public class WatchDogService extends Service {
 
 	@Override
 	public void onCreate() {
+		offreceiver = new ScreenOffReceiver();
+		registerReceiver(offreceiver,new IntentFilter(Intent.ACTION_SCREEN_OFF));
+		innerReceiver = new InnerReceiver();
+		registerReceiver(innerReceiver,new IntentFilter("com.qzd.mobilesafe.tempstop"));
 		
 		am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
 		dao = new ApplockDao(this);
@@ -58,10 +69,29 @@ public class WatchDogService extends Service {
 		super.onCreate();
 	}
 	
+	private class InnerReceiver extends BroadcastReceiver{
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			System.out.println("接收了临时停止保护的广播事件");
+			tempStopProtectPackname = intent.getStringExtra("packname");
+		}
+	}
+	
+	private class ScreenOffReceiver extends BroadcastReceiver{
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			tempStopProtectPackname = null;
+		}
+	}
+	
+	
 	@Override
 	public void onDestroy() {
 		flag = false;
-		
+		unregisterReceiver(innerReceiver);
+		innerReceiver = null;
+		unregisterReceiver(offreceiver);
+		offreceiver = null;
 		super.onDestroy();
 	}
 }
