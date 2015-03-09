@@ -425,8 +425,7 @@ public class AppManagerActivity extends Activity implements OnClickListener {
 		intent.setAction("android.intent.action.DELETE");
 		intent.addCategory("android.intent.category.DEFAULT");
 		intent.setData(Uri.parse("package:"+appInfo.getPackname()));
-		startActivityForResult(intent,0);	
-		
+		startActivityForResult(intent,0);			
 	}
 	//刷新界面
 		@Override

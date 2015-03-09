@@ -4,6 +4,7 @@ import com.lidroid.xutils.util.LogUtils;
 import com.mobile.safe.R;
 import com.mobile.safe.service.AddressService;
 import com.mobile.safe.service.CallSmsSafeService;
+import com.mobile.safe.service.WatchDogService;
 import com.mobile.safe.ui.SettingClickView;
 import com.mobile.safe.ui.SettingItemView;
 import com.mobile.safe.utils.ServiceUtils;
@@ -35,6 +36,8 @@ public class SettingActivity extends Activity {
 		//黑名单拦截设置
 		private SettingItemView siv_callsms_safe;
 		private Intent callSmsSafeIntent;
+		private SettingItemView siv_watchdog;
+		private Intent watchDogIntent;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -127,7 +130,25 @@ public class SettingActivity extends Activity {
 
 							}
 						});
-		
+		   // 看门狗
+				siv_watchdog = (SettingItemView) findViewById(R.id.siv_watchdog);
+				watchDogIntent = new Intent(this, WatchDogService.class);
+				siv_watchdog.setOnClickListener(new OnClickListener() {				
+							@Override
+							public void onClick(View v) {
+								if (siv_watchdog.isChecked()) {
+									// 变为非选中状态
+									siv_watchdog.setChecked(false);
+									stopService(watchDogIntent);
+								} else {
+									// 选择状态
+									siv_watchdog.setChecked(true);
+									startService(watchDogIntent);
+								}
+
+							}
+						});
+				
 		
 		
 		// 设置号码归属地显示控件
@@ -186,6 +207,12 @@ public class SettingActivity extends Activity {
 				SettingActivity.this,
 				"com.mobile.safe.service.CallSmsSafeService");
 		siv_callsms_safe.setChecked(iscallSmsServiceRunning);
+		
+		// 看门狗
+		boolean iswatchdogServiceRunning = ServiceUtils.isServiceRunning(
+				SettingActivity.this,
+				"com.mobile.safe.service.WatchDogService");
+		siv_watchdog.setChecked(iswatchdogServiceRunning);
 		
 	}
 	

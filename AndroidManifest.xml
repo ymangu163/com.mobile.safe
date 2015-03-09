@@ -73,6 +73,7 @@
         <activity  android:name=".activity.AppManagerActivity"/>
         <activity  android:name=".activity.TaskManagerActivity"/>
         <activity  android:name=".activity.TaskSettingActivity"/>
+        <activity  android:name=".activity.EnterPwdActivity"/>
         
         
         <service android:name="com.mobile.safe.service.GPSService"/>
@@ -80,6 +81,7 @@
         <service android:name="com.mobile.safe.service.CallSmsSafeService"/>
         <service android:name="com.mobile.safe.service.AutoCleanService"/>
         <service android:name="com.mobile.safe.service.UpdateWidgetService"/>
+        <service android:name="com.mobile.safe.service.WatchDogService"/>
     
               
          <!--监听开机启动完成的广播  -->

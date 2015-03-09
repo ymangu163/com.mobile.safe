@@ -47,5 +47,16 @@
         ymangu:desc_on="黑名单拦截已经开启"
         ymangu:mtitle="黑名单拦截设置" >
     </com.mobile.safe.ui.SettingItemView>
+    
+       <com.mobile.safe.ui.SettingItemView
+        android:id="@+id/siv_watchdog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        ymangu:desc_off="看门狗已经关闭"
+        ymangu:desc_on="看门狗已经开启"
+        ymangu:mtitle="程序锁设置" >
+    </com.mobile.safe.ui.SettingItemView>
+    
+
    
 </LinearLayout>
