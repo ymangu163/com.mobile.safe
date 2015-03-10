@@ -7,6 +7,7 @@ import com.mobile.safe.db.ApplockDBOpenHelper;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.SystemClock;
@@ -17,10 +18,11 @@ import android.os.SystemClock;
  */
 public class ApplockDao {
 	private ApplockDBOpenHelper helper;
-	
+	private Context context;
 	//构造方法
 	public ApplockDao(Context context) {
 		helper = new ApplockDBOpenHelper(context);	
+		this.context=context;
 	}
 	
 	// 查询黑名单号码是是否存在
@@ -37,8 +39,20 @@ public class ApplockDao {
 		return result;
 	}
 	
-
-	
+	/**
+	 * 查询全部的包名
+	 */
+	public List<String> findAll(){
+		List<String> protectPacknames = new ArrayList<String>();
+		SQLiteDatabase db = helper.getReadableDatabase();
+		Cursor cursor = db.query("applock",new String[]{"packagename"},null, null, null,null, null);
+		while(cursor.moveToNext()){
+			protectPacknames.add(cursor.getString(0));
+		}
+		cursor.close();
+		db.close();
+		return protectPacknames;
+	}	
 
 			
 	/**
@@ -52,7 +66,9 @@ public class ApplockDao {
 		values.put("packagename", packagename);
 		db.insert("applock", null, values);
 		db.close();	
-		
+		Intent intent = new Intent();
+		intent.setAction("com.qzd.mobilesafe.applockchange");
+		context.sendBroadcast(intent);
 	}
 	
 		
@@ -64,6 +80,9 @@ public class ApplockDao {
 		SQLiteDatabase db = helper.getWritableDatabase();
 		db.delete("applock",  "packagename=?", new String[]{packagename});
 		db.close();
+		Intent intent = new Intent();
+		intent.setAction("com.qzd.mobilesafe.applockchange");
+		context.sendBroadcast(intent);
 	}	
 	
 }
