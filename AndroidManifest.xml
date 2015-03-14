@@ -74,6 +74,7 @@
         <activity  android:name=".activity.TaskManagerActivity"/>
         <activity  android:name=".activity.TaskSettingActivity"/>
         <activity  android:name=".activity.TrafficManagerActivity"/>
+        <activity  android:name=".activity.AntiVirusActivity"/>
         <activity  android:name=".activity.EnterPwdActivity"
             android:launchMode="singleInstance"
             android:excludeFromRecents="true"
