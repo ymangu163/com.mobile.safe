@@ -308,9 +308,9 @@ public class AppManagerActivity extends Activity implements OnClickListener {
 			holder.iv_icon.setImageDrawable(appInfo.getIcon());
 			holder.tv_name.setText(appInfo.getName());
 			if(appInfo.isInRom()){
-				holder.tv_location.setText("手机内存");
+				holder.tv_location.setText("手机内存"+" uid:"+appInfo.getUid());
 			}else{
-				holder.tv_location.setText("外部存储");
+				holder.tv_location.setText("外部存储"+" uid:"+appInfo.getUid());
 			}
 			if(dao.find(appInfo.getPackname())){
 				holder.iv_statis.setImageResource(R.drawable.lock);

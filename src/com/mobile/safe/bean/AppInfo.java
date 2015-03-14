@@ -8,7 +8,14 @@ public class AppInfo {
 	private String packname;
 	private boolean inRom;//true为手机内存 false为外部内存
 	private boolean userApp;//true 用户  false 系统
+	private int uid;  //操作系统分配级应用程序的一个固定的编号，不再改变
 	
+	public int getUid() {
+		return uid;
+	}
+	public void setUid(int uid) {
+		this.uid = uid;
+	}
 	public Drawable getIcon() {
 		return icon;
 	}
