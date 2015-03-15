@@ -4,17 +4,21 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.content.pm.IPackageDataObserver;
 import android.content.pm.IPackageStatsObserver;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageStats;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
 import android.text.format.Formatter;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -49,6 +53,34 @@ public class CleanCacheActivity extends Activity {
 				tv_cache.setText("缓存大小："+Formatter.formatFileSize(getApplicationContext(), info.size));
 				ImageView iv_delete = (ImageView) view.findViewById(R.id.iv_delete);
 				
+				iv_delete.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						Method[] methods = PackageManager.class.getMethods();
+						for(Method method : methods){
+							try {
+								if("deleteApplicationCacheFiles".equals(method.getName())){
+									method.invoke(pm, info.packname,new IPackageDataObserver.Stub() {
+										@Override
+										public void onRemoveCompleted(String packageName, boolean succeeded)
+												throws RemoteException {
+											
+										}
+									});
+								}
+							} catch (Exception e) {
+								Intent intent = new Intent();
+								intent.setAction("android.settings.APPLICATION_DETAILS_SETTINGS");
+								intent.addCategory(Intent.CATEGORY_DEFAULT);
+								intent.setData(Uri.parse("package:"+info.packname));
+								startActivity(intent);
+								e.printStackTrace();
+							}
+					}
+						
+					}
+					
+				});
 				
 				ll_container.addView(view, 0);
 				break;
@@ -68,7 +100,7 @@ public class CleanCacheActivity extends Activity {
 		tv_status = (TextView) findViewById(R.id.tv_status);
 
 		scanCache();
-		
+	
 	}
 
 	// 扫描每个应用的缓存信息
@@ -149,4 +181,28 @@ public class CleanCacheActivity extends Activity {
 		long size;
 		String packname;
 	}
+	
+	public void cleanAll(View view){
+		Method[] methods = PackageManager.class.getMethods();
+		for(Method method:methods){
+			if("freeStorageAndNotify".equals(method.getName())){
+				try {
+					method.invoke(pm, Integer.MAX_VALUE, new IPackageDataObserver.Stub() {
+						@Override
+						public void onRemoveCompleted(String packageName,
+								boolean succeeded) throws RemoteException {
+							System.out.println(succeeded);
+						}
+					});
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				return;
+			}
+		}
+		
+		
+	}
+	
+	
 }
